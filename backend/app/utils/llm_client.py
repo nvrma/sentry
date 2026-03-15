@@ -1,6 +1,6 @@
 """
-LLM客户端封装
-统一使用OpenAI格式调用
+LLM Client Wrapper
+Uniformly use OpenAI format for calls
 """
 
 import json
@@ -12,7 +12,7 @@ from ..config import Config
 
 
 class LLMClient:
-    """LLM客户端"""
+    """LLM Client"""
     
     def __init__(
         self,
@@ -25,7 +25,7 @@ class LLMClient:
         self.model = model or Config.LLM_MODEL_NAME
         
         if not self.api_key:
-            raise ValueError("LLM_API_KEY 未配置")
+            raise ValueError("LLM_API_KEY unconfigured")
         
         self.client = OpenAI(
             api_key=self.api_key,
@@ -40,16 +40,16 @@ class LLMClient:
         response_format: Optional[Dict] = None
     ) -> str:
         """
-        发送聊天请求
+        Send chat request
         
         Args:
-            messages: 消息列表
-            temperature: 温度参数
-            max_tokens: 最大token数
-            response_format: 响应格式（如JSON模式）
+            messages: List of messages
+            temperature: Temperature parameter
+            max_tokens: Maximum tokens
+            response_format: Response format (e.g., JSON mode)
             
         Returns:
-            模型响应文本
+            Model response text
         """
         kwargs = {
             "model": self.model,
@@ -63,7 +63,7 @@ class LLMClient:
         
         response = self.client.chat.completions.create(**kwargs)
         content = response.choices[0].message.content
-        # 部分模型（如MiniMax M2.5）会在content中包含<think>思考内容，需要移除
+        # Some models (like MiniMax M2.5) include <think> content in the response, which needs to be removed
         content = re.sub(r'<think>[\s\S]*?</think>', '', content).strip()
         return content
     
@@ -75,16 +75,16 @@ class LLMClient:
         use_json_mode: bool = True
     ) -> Dict[str, Any]:
         """
-        发送聊天请求并返回JSON
+        Send chat request and return JSON
         
         Args:
-            messages: 消息列表
-            temperature: 温度参数
-            max_tokens: 最大token数
-            use_json_mode: 是否使用API原生的JSON模式（部分本地模型建议关闭）
+            messages: List of messages
+            temperature: Temperature parameter
+            max_tokens: Maximum tokens
+            use_json_mode: Whether to use API native JSON mode (recommended to disable for some local models)
             
         Returns:
-            解析后的JSON对象
+            Parsed JSON object
         """
         response_format = {"type": "json_object"} if use_json_mode else None
         
@@ -95,22 +95,22 @@ class LLMClient:
             response_format=response_format
         )
         
-        # 清理markdown代码块标记
+        # Clean markdown code block tags
         cleaned_response = response.strip()
         cleaned_response = re.sub(r'^```(?:json)?\s*\n?', '', cleaned_response, flags=re.IGNORECASE)
         cleaned_response = re.sub(r'\n?```\s*$', '', cleaned_response)
         cleaned_response = cleaned_response.strip()
 
         if not cleaned_response:
-            raise ValueError(f"LLM返回了空响应 (model: {self.model})")
+            raise ValueError(f"LLM returned an empty response (model: {self.model})")
 
         try:
             return json.loads(cleaned_response)
         except json.JSONDecodeError:
-            # 记录失败详情以便调试
+            # Log failure details for debugging
             from ..utils.logger import get_logger
             logger = get_logger('mirofish.llm')
-            logger.error(f"JSON解析失败! 模型: {self.model}")
-            logger.error(f"原始响应内容: \n{response}")
-            raise ValueError(f"LLM返回的JSON格式无效 (请检查日志以获取详情)")
+            logger.error(f"JSON parsing failed! Model: {self.model}")
+            logger.error(f"Original response content: \n{response}")
+            raise ValueError(f"LLM returned invalid JSON format (please check logs for details)")
 
