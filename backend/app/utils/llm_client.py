@@ -71,7 +71,8 @@ class LLMClient:
         self,
         messages: List[Dict[str, str]],
         temperature: float = 0.3,
-        max_tokens: int = 4096
+        max_tokens: int = 4096,
+        use_json_mode: bool = True
     ) -> Dict[str, Any]:
         """
         发送聊天请求并返回JSON
@@ -80,24 +81,36 @@ class LLMClient:
             messages: 消息列表
             temperature: 温度参数
             max_tokens: 最大token数
+            use_json_mode: 是否使用API原生的JSON模式（部分本地模型建议关闭）
             
         Returns:
             解析后的JSON对象
         """
+        response_format = {"type": "json_object"} if use_json_mode else None
+        
         response = self.chat(
             messages=messages,
             temperature=temperature,
             max_tokens=max_tokens,
-            response_format={"type": "json_object"}
+            response_format=response_format
         )
+        
         # 清理markdown代码块标记
         cleaned_response = response.strip()
         cleaned_response = re.sub(r'^```(?:json)?\s*\n?', '', cleaned_response, flags=re.IGNORECASE)
         cleaned_response = re.sub(r'\n?```\s*$', '', cleaned_response)
         cleaned_response = cleaned_response.strip()
 
+        if not cleaned_response:
+            raise ValueError(f"LLM返回了空响应 (model: {self.model})")
+
         try:
             return json.loads(cleaned_response)
         except json.JSONDecodeError:
-            raise ValueError(f"LLM返回的JSON格式无效: {cleaned_response}")
+            # 记录失败详情以便调试
+            from ..utils.logger import get_logger
+            logger = get_logger('mirofish.llm')
+            logger.error(f"JSON解析失败! 模型: {self.model}")
+            logger.error(f"原始响应内容: \n{response}")
+            raise ValueError(f"LLM返回的JSON格式无效 (请检查日志以获取详情)")
 
