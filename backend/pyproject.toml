@@ -1,11 +1,11 @@
 [project]
-name = "mirofish-backend"
+name = "sentry-backend"
 version = "0.1.0"
-description = "MiroFish - Simple and versatile collective intelligence engine, predicting everything"
+description = "Sentry - Simple and versatile collective intelligence engine, predicting everything"
 requires-python = ">=3.11"
 license = { text = "AGPL-3.0" }
 authors = [
-    { name = "MiroFish Team" }
+    { name = "Sentry Team" }
 ]
 
 dependencies = [

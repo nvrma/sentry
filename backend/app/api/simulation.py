@@ -16,7 +16,7 @@ from ..services.simulation_runner import SimulationRunner, RunnerStatus
 from ..utils.logger import get_logger
 from ..models.project import ProjectManager
 
-logger = get_logger('mirofish.api.simulation')
+logger = get_logger('sentry.api.simulation')
 
 
 # Interview prompt optimization prefix
@@ -171,7 +171,7 @@ def create_simulation():
     Request (JSON):
         {
             "project_id": "proj_xxxx",      // Required
-            "graph_id": "mirofish_xxxx",    // Optional, defaults from project if not provided
+            "graph_id": "sentry_xxxx",    // Optional, defaults from project if not provided
             "enable_twitter": true,          // Optional, default true
             "enable_reddit": true            // Optional, default true
         }
@@ -182,7 +182,7 @@ def create_simulation():
             "data": {
                 "simulation_id": "sim_xxxx",
                 "project_id": "proj_xxxx",
-                "graph_id": "mirofish_xxxx",
+                "graph_id": "sentry_xxxx",
                 "status": "created",
                 "enable_twitter": true,
                 "enable_reddit": true,
@@ -1377,7 +1377,7 @@ def generate_profiles():
     
     Request (JSON):
         {
-            "graph_id": "mirofish_xxxx",     // Required
+            "graph_id": "sentry_xxxx",     // Required
             "entity_types": ["Student"],      // Optional
             "use_llm": true,                  // Optional
             "platform": "reddit"              // Optional

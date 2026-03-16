@@ -109,7 +109,7 @@ class LLMClient:
         except json.JSONDecodeError:
             # Log failure details for debugging
             from ..utils.logger import get_logger
-            logger = get_logger('mirofish.llm')
+            logger = get_logger('sentry.llm')
             logger.error(f"JSON parsing failed! Model: {self.model}")
             logger.error(f"Original response content: \n{response}")
             raise ValueError(f"LLM returned invalid JSON format (please check logs for details)")

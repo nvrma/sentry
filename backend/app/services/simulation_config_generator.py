@@ -22,10 +22,10 @@ from ..config import Config
 from ..utils.logger import get_logger
 from .zep_entity_reader import EntityNode, ZepEntityReader
 
-logger = get_logger('mirofish.simulation_config')
+logger = get_logger('sentry.simulation_config')
 
-# Chinese daily schedule configuration (Beijing Time)
-CHINA_TIMEZONE_CONFIG = {
+# Daily schedule configuration (based on local habits)
+DEFAULT_TIMEZONE_CONFIG = {
     # Late night (almost no activity)
     "dead_hours": [0, 1, 2, 3, 4, 5],
     # Morning period (gradually waking up)
@@ -92,7 +92,7 @@ class TimeSimulationConfig:
     agents_per_hour_min: int = 5
     agents_per_hour_max: int = 20
     
-    # Peak hours (19:00-22:00 evening, when Chinese are most active)
+    # Peak hours (19:00-22:00 evening, peak activity)
     peak_hours: List[int] = field(default_factory=lambda: [19, 20, 21, 22])
     peak_activity_multiplier: float = 1.5
     
@@ -533,7 +533,7 @@ class SimulationConfigGenerator:
     
     def _generate_time_config(self, context: str, num_entities: int) -> Dict[str, Any]:
         """Generate time configuration"""
-        # 使用配置的上下文截断长度
+        # Use configured context truncation length
         context_truncated = context[:self.TIME_CONFIG_CONTEXT_LENGTH]
         
         # Calculate maximum allowed value (80% of agent count)
@@ -584,7 +584,7 @@ Field Description:
 - work_hours (int array): Working hours.
 - reasoning (string): Briefly explain why it's configured this way."""
 
-        system_prompt = "You are a social media simulation expert. Return in pure JSON format. Time configuration must follow Chinese daily habits."
+        system_prompt = "You are a social media simulation expert. Return in pure JSON format. Time configuration must follow daily activity patterns."
         
         try:
             return self._call_llm_with_retry(prompt, system_prompt)
@@ -603,7 +603,7 @@ Field Description:
             "off_peak_hours": [0, 1, 2, 3, 4, 5],
             "morning_hours": [6, 7, 8],
             "work_hours": [9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
-            "reasoning": "Use default Chinese daily habit configuration (1 hour per round)"
+            "reasoning": "Use default daily habit configuration (1 hour per round)"
         }
     
     def _parse_time_config(self, result: Dict[str, Any], num_entities: int) -> TimeSimulationConfig:
@@ -668,7 +668,7 @@ Field Description:
             for t, examples in type_examples.items()
         ])
         
-        # 使用配置的上下文截断长度
+        # Use configured context truncation length
         context_truncated = context[:self.EVENT_CONFIG_CONTEXT_LENGTH]
         
         prompt = f"""Based on the following simulation requirements, generate an event configuration.

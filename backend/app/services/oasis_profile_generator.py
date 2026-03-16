@@ -22,7 +22,7 @@ from ..config import Config
 from ..utils.logger import get_logger
 from .zep_entity_reader import EntityNode, ZepEntityReader
 
-logger = get_logger('mirofish.oasis_profile')
+logger = get_logger('sentry.oasis_profile')
 
 
 @dataclass
@@ -1127,10 +1127,10 @@ Important:
         
         # Chinese mapping
         gender_map = {
-            "男": "male",
-            "女": "female",
-            "机构": "other",
-            "其他": "other",
+            "Male": "male",
+            "Female": "female",
+            "Organization": "other",
+            "Other": "other",
             # English already exists
             "male": "male",
             "female": "female",

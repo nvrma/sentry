@@ -54,7 +54,7 @@ class GraphBuilderService:
         self,
         text: str,
         ontology: Dict[str, Any],
-        graph_name: str = "MiroFish Graph",
+        graph_name: str = "Sentry Graph",
         chunk_size: int = 500,
         chunk_overlap: int = 50,
         batch_size: int = 3
@@ -73,7 +73,7 @@ class GraphBuilderService:
         Returns:
             Task ID
         """
-        # 创建任务
+        # Create task
         task_id = self.task_manager.create_task(
             task_type="graph_build",
             metadata={
@@ -83,7 +83,7 @@ class GraphBuilderService:
             }
         )
         
-        # 在后台线程中执行构建
+        # Execute building in background thread
         thread = threading.Thread(
             target=self._build_graph_worker,
             args=(task_id, text, ontology, graph_name, chunk_size, chunk_overlap, batch_size)
@@ -172,7 +172,7 @@ class GraphBuilderService:
             
             graph_info = self._get_graph_info(graph_id)
             
-            # 完成
+            # Complete
             self.task_manager.complete_task(task_id, {
                 "graph_id": graph_id,
                 "graph_info": graph_info.to_dict(),
@@ -186,12 +186,12 @@ class GraphBuilderService:
     
     def create_graph(self, name: str) -> str:
         """Create Zep Graph (public method)"""
-        graph_id = f"mirofish_{uuid.uuid4().hex[:16]}"
+        graph_id = f"sentry_{uuid.uuid4().hex[:16]}"
         
         self.client.graph.create(
             graph_id=graph_id,
             name=name,
-            description="MiroFish Social Simulation Graph"
+            description="Sentry Social Simulation Graph"
         )
         
         return graph_id
@@ -222,7 +222,7 @@ class GraphBuilderService:
             name = entity_def["name"]
             description = entity_def.get("description", f"A {name} entity.")
             
-            # 创建属性字典和类型注解（Pydantic v2 需要）
+            # Create attribute dictionary and type annotations (required for Pydantic v2)
             attrs = {"__doc__": description}
             annotations = {}
             
@@ -246,7 +246,7 @@ class GraphBuilderService:
             name = edge_def["name"]
             description = edge_def.get("description", f"A {name} relationship.")
             
-            # 创建属性字典和类型注解
+            # Create attribute dictionary and type annotations
             attrs = {"__doc__": description}
             annotations = {}
             
@@ -395,14 +395,14 @@ class GraphBuilderService:
             progress_callback(f"Processing complete: {completed_count}/{total_episodes}", 1.0)
     
     def _get_graph_info(self, graph_id: str) -> GraphInfo:
-        """获取图谱信息"""
-        # 获取节点（分页）
+        """Get graph info"""
+        # Get nodes (paged)
         nodes = fetch_all_nodes(self.client, graph_id)
 
-        # 获取边（分页）
+        # Get edges (paged)
         edges = fetch_all_edges(self.client, graph_id)
 
-        # 统计实体类型
+        # Count entity types
         entity_types = set()
         for node in nodes:
             if node.labels:
